@@ -21,37 +21,11 @@ public class OperatorDrive extends OpMode {
 
     @Override
     public void loop() {
-        /*
-
-        double ABCD = gamepad1.right_trigger;
-
-        left.setPower(ABCD);
-        right.setPower(ABCD);
-        // left.setPower(ABCD);
-        // double WXYZ = gamepad1.right_trigger;
-        // right.setPower(WXYZ);
-        */
 
         double speed = gamepad1.right_trigger - gamepad1.left_trigger;
+        double turn = gamepad1.left_stick_x;
 
-        double left_stick = gamepad1.left_stick_x;
-
-
-        if (left_stick != 0) {
-            double turningRate = (speed + left_stick) / 2;
-
-
-            if (turningRate > 0) {
-                right.setPower(turningRate);
-                left.setPower(turningRate * -1);
-            } else {
-                right.setPower(turningRate * -1);
-                left.setPower(turningRate);
-            }
-        }
-        else {
-            left.setPower(speed);
-            right.setPower(speed);
-        }
+        left.setPower(speed - turn);
+        right.setPower(speed + turn);
     }
 }
