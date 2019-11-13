@@ -7,12 +7,12 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "sjdktghakfuie")
-public class motorOmegaLul extends OpMode {
+@TeleOp(name = "VexMotorTest")
+public class VexMotorTest extends OpMode {
 
     private DcMotor left;
     private DcMotor right;
-    private CRServo motorLul;
+    private CRServo VexMotor;
     private Servo servo0;
 
 
@@ -23,7 +23,7 @@ public class motorOmegaLul extends OpMode {
     public void init() {
         left = hardwareMap.get(DcMotor.class, "right_drive");
         right = hardwareMap.get(DcMotor.class, "left_drive");
-        motorLul = hardwareMap.get(CRServo.class, "motorLul");
+        VexMotor = hardwareMap.get(CRServo.class, "motorLul");
         servo0 = hardwareMap.get(Servo.class, "servo0");
 
         right.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -47,7 +47,7 @@ public class motorOmegaLul extends OpMode {
         left.setPower(speed - turn);
         right.setPower(speed + turn);
 
-        motorLul.setPower(0.9);
+        VexMotor.setPower(0.9);
 
         oldButton = button;
     }

@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 @TeleOp(name="Autonomous")
 public class Auto extends LinearOpMode {
 
@@ -13,7 +15,7 @@ public class Auto extends LinearOpMode {
     private DcMotor right;
     private final double COUNTS_PER_INCH = (1440/(3.1415*4));
     private final double SPEED = 0.5;
-    private final double RADIUS = 4;
+    private final double RADIUS = 6.5;
     private int error = 0;
 
     @Override
@@ -33,8 +35,7 @@ public class Auto extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-
-
+        error = turn(90.0, error, left, right);
         }
 
 
@@ -43,13 +44,6 @@ public class Auto extends LinearOpMode {
 
         left.setTargetPosition(target);
         right.setTargetPosition(target);
-
-        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        left.setPower(SPEED);
-        right.setPower(SPEED);
-
         while(left.isBusy() && right.isBusy()) {
             left.setTargetPosition(target);
             right.setTargetPosition(target);
@@ -67,27 +61,29 @@ public class Auto extends LinearOpMode {
     private int turn(double rotation, int error, DcMotor left, DcMotor right) {
         double amount_to_move = (rotation / 180)*3.1416*RADIUS;
 
-
+        int target = (int) (amount_to_move * COUNTS_PER_INCH);
 
         left.setTargetPosition(target);
-        right.setTargetPosition(target);
+        right.setTargetPosition(-target);
 
         left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         left.setPower(SPEED);
-        right.setPower(SPEED);
+        right.setPower(-SPEED);
 
         while(left.isBusy() && right.isBusy()) {
             left.setTargetPosition(target);
-            right.setTargetPosition(target);
+            right.setTargetPosition(-target);
 
             left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             left.setPower(SPEED);
-            right.setPower(SPEED);
-        return error;
+            right.setPower(-SPEED);
+
+        }
+        return target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
     }
 
 }
