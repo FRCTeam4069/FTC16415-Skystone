@@ -38,29 +38,15 @@ public class OperatorDrive extends OpMode {
         double speed = gamepad1.right_trigger - gamepad1.left_trigger;
         double turn = gamepad1.left_stick_x;
         boolean button = gamepad1.a;
-        boolean buttonB = gamepad1.b;
+        boolean buttonX = gamepad1.x;
+        boolean buttonY = gamepad1.y;
         boolean Up = gamepad1.dpad_up;
         boolean Down = gamepad1.dpad_down;
 
-        if(buttonB) {
-            thing.setPower(0.5);
-        }
-        else{
-            thing.setPower(0);
-        }
-
-        if(Up) {
-            elevator.setPower(0.5);
-        }
-        else{
-            elevator.setPower(0);
-        }
-        if(Down) {
-            elevator.setPower(-0.5);
-        }
-        else{
-            elevator.setPower(0);
-        }
+        thing.setPower((buttonY) ? 0.5 : 0);
+        thing.setPower((buttonX) ? -0.5 : 0);
+        elevator.setPower((Up) ? 0.5 : 0);
+        elevator.setPower((Down) ? -0.5 : 0);
 
         if(button && !oldButton) {
             savedPos = !savedPos;
