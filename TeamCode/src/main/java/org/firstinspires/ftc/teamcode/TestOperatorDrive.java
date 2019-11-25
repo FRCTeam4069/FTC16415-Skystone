@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "OperatorDrive")
-public class OperatorDrive extends OpMode {
+@TeleOp(name = "move-y teleop")
+public class TestOperatorDrive extends OpMode {
 
     private DcMotor left;
     private DcMotor right;
     //private DcMotor elevator;
-    //private DcMotor thing;
+    private DcMotor thing;
     private Servo servo0;
 
     private boolean savedPos;
@@ -22,8 +22,8 @@ public class OperatorDrive extends OpMode {
     public void init() {
         left = hardwareMap.get(DcMotor.class, "right_drive");
         right = hardwareMap.get(DcMotor.class, "left_drive");
-        // elevator = hardwareMap.get(DcMotor.class, "elevator");
-        //thing = hardwareMap.get(DcMotor.class, "attachment");
+       // elevator = hardwareMap.get(DcMotor.class, "elevator");
+        thing = hardwareMap.get(DcMotor.class, "attachment");
         servo0 = hardwareMap.get(Servo.class, "Servo0");
 
         right.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -43,8 +43,8 @@ public class OperatorDrive extends OpMode {
         boolean Up = gamepad1.dpad_up;
         boolean Down = gamepad1.dpad_down;
 
-        //thing.setPower((buttonY) ? 0.5 : 0);
-        //thing.setPower((buttonX) ? -0.5 : 0);
+        thing.setPower((buttonY) ? 0.5 : 0);
+        thing.setPower((buttonX) ? -0.5 : 0);
         //elevator.setPower((Up) ? 0.5 : 0);
         //elevator.setPower((Down) ? -0.5 : 0);
 

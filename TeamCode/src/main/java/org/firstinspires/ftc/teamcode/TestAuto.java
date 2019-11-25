@@ -10,17 +10,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@TeleOp(name="Autonomous")
-public class Auto extends LinearOpMode {
+@TeleOp(name="testAutonomous")
+public class TestAuto extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor left;
     private DcMotor right;
-    //private NavxMicroNavigationSensor navxMicro;
-    //private IntegratingGyroscope gyro;
+    private NavxMicroNavigationSensor navxMicro;
+    private IntegratingGyroscope gyro;
     private final double COUNTS_PER_INCH = (1440/(3.1415*4));
     private final double SPEED = 0.5;
-    private final double RADIUS = 6;
+    private final double RADIUS = 6.5;
     private int error = 0;
 
     @Override
@@ -28,8 +28,8 @@ public class Auto extends LinearOpMode {
         left = hardwareMap.get(DcMotor.class, "right_drive");
         right = hardwareMap.get(DcMotor.class, "left_drive");
 
-        //navxMicro= hardwareMap.get(NavxMicroNavigationSensor.class, "navX");
-        //gyro = (IntegratingGyroscope)navxMicro;
+        navxMicro= hardwareMap.get(NavxMicroNavigationSensor.class, "navX");
+        gyro = (IntegratingGyroscope)navxMicro;
 
         left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -38,19 +38,22 @@ public class Auto extends LinearOpMode {
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         right.setDirection(DcMotorSimple.Direction.REVERSE);
-        /*
+
         while(navxMicro.isCalibrating()) {
             telemetry.addData("can you touch? ", "NO TOUCH!");
             telemetry.update();
             Thread.sleep(50);
         }
-        */
+
 
         waitForStart();
         runtime.reset();
 
+        while(opModeIsActive()){
+            
+        }
 
-    }
+        }
 
 
     private int drive(double setpoint, int error, DcMotor left, DcMotor right) {
@@ -68,6 +71,7 @@ public class Auto extends LinearOpMode {
             left.setPower(SPEED);
             right.setPower(SPEED);
         }
+
         return target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
     }
 
