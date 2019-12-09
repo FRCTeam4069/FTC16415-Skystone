@@ -1,18 +1,17 @@
 package org.firstinspires.ftc.teamcode;
-import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
+//import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+//import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
+//import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @TeleOp(name="Autonomous")
 public class Auto extends LinearOpMode {
-
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor left;
     private DcMotor right;
@@ -48,7 +47,6 @@ public class Auto extends LinearOpMode {
 
         waitForStart();
         runtime.reset();
-
 
     }
 

@@ -13,7 +13,7 @@ public class TestOperatorDrive extends OpMode {
     private DcMotor right;
     //private DcMotor elevator;
     private DcMotor thing;
-    private Servo servo0;
+    //private Servo servo0;
 
     private boolean savedPos;
     private boolean oldButton;
@@ -24,7 +24,7 @@ public class TestOperatorDrive extends OpMode {
         right = hardwareMap.get(DcMotor.class, "left_drive");
        // elevator = hardwareMap.get(DcMotor.class, "elevator");
         thing = hardwareMap.get(DcMotor.class, "attachment");
-        servo0 = hardwareMap.get(Servo.class, "Servo0");
+        //servo0 = hardwareMap.get(Servo.class, "Servo0");
 
         right.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -34,7 +34,6 @@ public class TestOperatorDrive extends OpMode {
 
     @Override
     public void loop() {
-
         double speed = gamepad1.right_trigger - gamepad1.left_trigger;
         double turn = gamepad1.left_stick_x;
         boolean button = gamepad1.a;
@@ -43,16 +42,18 @@ public class TestOperatorDrive extends OpMode {
         boolean Up = gamepad1.dpad_up;
         boolean Down = gamepad1.dpad_down;
 
+        telemetry.addData("test", "test");
+
         thing.setPower((buttonY) ? 0.5 : 0);
         thing.setPower((buttonX) ? -0.5 : 0);
         //elevator.setPower((Up) ? 0.5 : 0);
         //elevator.setPower((Down) ? -0.5 : 0);
-
+/*
         if(button && !oldButton) {
             savedPos = !savedPos;
             servo0.setPosition((savedPos) ? 1 : 0);
         }
-
+*/
         left.setPower(speed - turn);
         right.setPower(speed + turn);
 
