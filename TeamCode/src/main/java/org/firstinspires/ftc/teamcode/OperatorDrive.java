@@ -2,74 +2,99 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "move-y teleop")
+@TeleOp(name = "OperatorDrive")
 public class OperatorDrive extends OpMode {
 
     private DcMotor left;
     private DcMotor right;
     private DcMotor elevator;
-    private DcMotor thing;
-    private Servo servo0;
+    private DcMotor intakeHinge;
+    private CRServo VexMotor0;
+    private CRServo VexMotor1;
+    private Servo latch;
 
-    private boolean savedPos;
-    private boolean oldButton;
+    private boolean savedPosHinge;
+    private boolean oldButtonHinge;
+    private boolean savedPosIntake;
+    private boolean oldButtonIntake;
+    private boolean savedPosLatch;
+    private boolean oldButtonLatch;
 
     @Override
     public void init() {
-        left = hardwareMap.get(DcMotor.class, "right_drive");
-        right = hardwareMap.get(DcMotor.class, "left_drive");
+        left = hardwareMap.get(DcMotor.class, "left_drive");
+        right = hardwareMap.get(DcMotor.class, "right_drive");
         elevator = hardwareMap.get(DcMotor.class, "elevator");
-        thing = hardwareMap.get(DcMotor.class, "attachment");
-        servo0 = hardwareMap.get(Servo.class, "Servo0");
-
+        intakeHinge = hardwareMap.get(DcMotor.class, "attachment");
+        VexMotor0 = hardwareMap.get(CRServo.class, "VexMotor0");
+        VexMotor1 = hardwareMap.get(CRServo.class, "VexMotor1");
+        latch = hardwareMap.get(Servo.class, "latch");
         right.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        savedPos = false;
-        oldButton = false;
+        intakeHinge.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeHinge.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        savedPosHinge = false;
+        oldButtonHinge = false;
+        savedPosIntake = false;
+        oldButtonIntake = false;
+        savedPosLatch = false;
+        oldButtonLatch = false;
     }
 
     @Override
     public void loop() {
-
         double speed = gamepad1.right_trigger - gamepad1.left_trigger;
         double turn = gamepad1.left_stick_x;
-        boolean button = gamepad1.a;
-        boolean buttonB = gamepad1.b;
-        boolean Up = gamepad1.dpad_up;
-        boolean Down = gamepad1.dpad_down;
+        boolean buttonHinge = gamepad1.b;
+        boolean buttonIntake = gamepad1.a;
+        boolean buttonLacth = gamepad1.x;
+        double elevatorSpeed = gamepad1.right_stick_y;
 
-        if(buttonB) {
-            thing.setPower(0.5);
-        }
-        else{
-            thing.setPower(0);
-        }
+        telemetry.addData("elevator pos", elevator.getCurrentPosition());
 
-        if(Up) {
-            elevator.setPower(0.5);
+        if(elevator.getCurrentPosition()>=0) {
+            elevator.setPower(elevatorSpeed * -1);
         }
-        else{
-            elevator.setPower(0);
-        }
-        if(Down) {
-            elevator.setPower(-0.5);
+        else if(elevator.getCurrentPosition()<0 && elevatorSpeed<0) {
+            elevator.setPower(elevatorSpeed * -1);
         }
         else{
             elevator.setPower(0);
         }
 
-        if(button && !oldButton) {
-            savedPos = !savedPos;
-            servo0.setPosition((savedPos) ? 1 : 0);
+        if(buttonLacth && !oldButtonLatch) {
+            savedPosLatch = !savedPosLatch;
+            latch.setPosition((savedPosLatch) ? 0 : 0.5);
         }
 
-        left.setPower(speed - turn);
-        right.setPower(speed + turn);
+        if(buttonIntake && !oldButtonIntake) {
+            savedPosIntake = !savedPosIntake;
+            VexMotor0.setPower((savedPosIntake) ? -0.75 : 0);
+            VexMotor1.setPower((savedPosIntake) ? 0.75 : 0);
+        }
+        /*
+        if(buttonHinge && !oldButtonHinge) {
+            savedPosHinge = !savedPosHinge;
 
-        oldButton = button;
+            if(savedPosHinge) {
+                intakeHinge.setTargetPosition(0);
+            }
+            else {
+                intakeHinge.setTargetPosition(-12600);
+            }
+            intakeHinge.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            intakeHinge.setPower(-0.1);
+        }
+        */
+        left.setPower(speed + turn);
+        right.setPower(speed - turn);
+
+        oldButtonHinge = buttonHinge;
     }
 }
