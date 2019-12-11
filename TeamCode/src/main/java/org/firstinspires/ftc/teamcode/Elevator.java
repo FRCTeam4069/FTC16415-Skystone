@@ -14,7 +14,7 @@ public class Elevator extends OpMode {
     Elevator multiplier: 2
     ((1440*10)/(1.25*pi))/2
      */
-    private final double ELEVATOR_COUNTS = ((1440*10)/(1.25*Math.PI))/2;
+    private final double ELEVATOR_COUNTS = ((1440*1)/(1.25*Math.PI))/2;
     private final int ELEVATOR_POSITION_0 = (int)Math.round(ELEVATOR_COUNTS*0);
     private final int ELEVATOR_POSITION_1 = (int)Math.round(ELEVATOR_COUNTS*2.5);
     private final int ELEVATOR_POSITION_2 = (int)Math.round(ELEVATOR_COUNTS*6.25);
@@ -77,29 +77,30 @@ public class Elevator extends OpMode {
         else if(elevatorStage4 && !oldElevatorStage4) target = ELEVATOR_POSITION_4;
 
         if(release && !oldRelease) {
-            latchPos = !latchPos;
             drop = true;
 
             if(latchPos) {
                 target = elevator.getCurrentPosition()-(int)ELEVATOR_COUNTS;
             }
+            latchPos = !latchPos;
         }
 
-        if(elevator.isBusy()) {
+        if(!elevator.isBusy()) {
             elevator.setTargetPosition(target);
             elevator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elevator.setPower(elevatorSpeed);
         }
-        else if(drop) {
-            latch.setPosition(latchZero+(latchPos ? 0.25 : -0.25));
+        
+        if(drop) {
+            latch.setPosition(latchZero+(latchPos ? 0.5 : -0.5));
             drop = false;
         }
 
-        oldElevatorStage0 = !elevatorStage0;
-        oldElevatorStage1 = !elevatorStage1;
-        oldElevatorStage2 = !elevatorStage2;
-        oldElevatorStage3 = !elevatorStage3;
-        oldElevatorStage4 = !elevatorStage4;
-        oldRelease = !release;
+        oldElevatorStage0 = elevatorStage0;
+        oldElevatorStage1 = elevatorStage1;
+        oldElevatorStage2 = elevatorStage2;
+        oldElevatorStage3 = elevatorStage3;
+        oldElevatorStage4 = elevatorStage4;
+        oldRelease = release;
     }
 }
