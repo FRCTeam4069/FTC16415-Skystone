@@ -49,13 +49,16 @@ public class TestOperatorDrive extends OpMode {
         left = hardwareMap.get(DcMotor.class, "left_drive");
         right = hardwareMap.get(DcMotor.class, "right_drive");
         elevator = hardwareMap.get(DcMotor.class, "elevator");
-        intake0 = hardwareMap.get(Servo.class, "intake0");
-        intake1 = hardwareMap.get(Servo.class, "intake1");
+        //intake0 = hardwareMap.get(Servo.class, "intake0");
+        //intake1 = hardwareMap.get(Servo.class, "intake1");
         latch = hardwareMap.get(Servo.class, "latch");
         right.setDirection(DcMotorSimple.Direction.REVERSE);
 
         elevator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right.setMode((DcMotor.RunMode.STOP_AND_RESET_ENCODER));
 
         elevatorSpeed = 0.5;
 
@@ -91,8 +94,11 @@ public class TestOperatorDrive extends OpMode {
         boolean elevatorStage3 = gamepad1.dpad_up;
         boolean elevatorStage4 = gamepad1.y;
         double elevatorManual = gamepad1.right_stick_y;
+        double axleDifference = left.getCurrentPosition() - right.getCurrentPosition();
 
         telemetry.addData("elevator pos", elevator.getCurrentPosition());
+
+        telemetry.addData("left stick pos", turn);
 
         if(elevatorStage0 && !oldElevatorStage0) target = ELEVATOR_POSITION_0;
         else if(elevatorStage1 && !oldElevatorStage1) target = ELEVATOR_POSITION_1;
@@ -136,8 +142,26 @@ public class TestOperatorDrive extends OpMode {
             drop = false;
         }
 
-        left.setPower(speed + turn);
-        right.setPower(speed - turn);
+        if(turn != 0) {
+            left.setPower(speed + turn);
+            right.setPower(speed  - turn);
+            left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            right.setMode((DcMotor.RunMode.STOP_AND_RESET_ENCODER));
+            left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        else if(speed != 0){
+            left.setPower(speed - (axleDifference/100));
+            right.setPower(speed  + (axleDifference/100));
+        }
+        else{
+            left.setPower(0);
+            right.setPower(0);
+            left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            right.setMode((DcMotor.RunMode.STOP_AND_RESET_ENCODER));
+            left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
 
         oldElevatorStage0 = elevatorStage0;
         oldElevatorStage1 = elevatorStage1;
