@@ -37,10 +37,10 @@ public class TestOperatorDrive extends OpMode {
 
     private int target;
 
-    private boolean savedPosHinge;
-    private boolean oldButtonHinge;
-    private boolean savedPosIntake;
-    private boolean oldButtonIntake;
+    private boolean savedPosIntake0;
+    private boolean oldButtonIntake0;
+    private boolean savedPosIntake1;
+    private boolean oldButtonIntake1;
     private boolean savedPosLatch;
     private boolean oldButtonLatch;
 
@@ -70,10 +70,10 @@ public class TestOperatorDrive extends OpMode {
         oldElevatorStage4 = false;
         target = 0;
 
-        savedPosHinge = false;
-        oldButtonHinge = false;
-        savedPosIntake = false;
-        oldButtonIntake = false;
+        savedPosIntake0 = false;
+        oldButtonIntake0 = false;
+        savedPosIntake1 = false;
+        oldButtonIntake1 = false;
         savedPosLatch = false;
         oldButtonLatch = false;
     }
@@ -82,8 +82,8 @@ public class TestOperatorDrive extends OpMode {
     public void loop() {
         double speed = gamepad1.right_trigger - gamepad1.left_trigger;
         double turn = gamepad1.left_stick_x;
-        boolean buttonHinge = gamepad1.b;
-        boolean buttonIntake = gamepad1.a;
+        boolean buttonIntake0 = gamepad1.a;
+        boolean buttonIntake1 = gamepad1.b;
         boolean buttonLatch = gamepad1.x;
         boolean elevatorStage0 = gamepad1.dpad_down;
         boolean elevatorStage1 = gamepad1.dpad_left;
@@ -106,8 +106,15 @@ public class TestOperatorDrive extends OpMode {
 //        //elevator.setMode(DcMotor.RunMode.);
 //        elevator.setPower(elevatorManual);
 
+        if(buttonIntake0 && !oldButtonIntake0) {
+            intake0.setPosition((savedPosIntake0) ? 0 : 0.25);
+            savedPosIntake0 = !savedPosIntake0;
+        }
 
-
+        if(buttonIntake1 && !oldButtonIntake1) {
+            intake1.setPosition((savedPosIntake1) ? 0 : -0.25);
+            savedPosIntake1 = !savedPosIntake1;
+        }
 
         if(buttonLatch && !oldButtonLatch) {
             drop = true;
@@ -138,6 +145,7 @@ public class TestOperatorDrive extends OpMode {
         oldElevatorStage3 = elevatorStage3;
         oldElevatorStage4 = elevatorStage4;
         oldButtonLatch = buttonLatch;
-        oldButtonHinge = buttonHinge;
+        oldButtonIntake0 = buttonIntake0;
+        oldButtonIntake1 = buttonIntake1;
     }
 }
