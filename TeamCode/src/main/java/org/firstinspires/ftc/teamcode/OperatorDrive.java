@@ -30,9 +30,9 @@ public class OperatorDrive extends OpMode {
         left = hardwareMap.get(DcMotor.class, "left_drive");
         right = hardwareMap.get(DcMotor.class, "right_drive");
         elevator = hardwareMap.get(DcMotor.class, "elevator");
-        intakeHinge = hardwareMap.get(DcMotor.class, "attachment");
-        VexMotor0 = hardwareMap.get(CRServo.class, "VexMotor0");
-        VexMotor1 = hardwareMap.get(CRServo.class, "VexMotor1");
+        //intakeHinge = hardwareMap.get(DcMotor.class, "attachment");
+        //VexMotor0 = hardwareMap.get(CRServo.class, "VexMotor0");
+        //VexMotor1 = hardwareMap.get(CRServo.class, "VexMotor1");
         latch = hardwareMap.get(Servo.class, "latch");
         right.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -78,7 +78,7 @@ public class OperatorDrive extends OpMode {
             VexMotor0.setPower((savedPosIntake) ? -0.75 : 0);
             VexMotor1.setPower((savedPosIntake) ? 0.75 : 0);
         }
-        /*
+
         if(buttonHinge && !oldButtonHinge) {
             savedPosHinge = !savedPosHinge;
 
@@ -88,10 +88,13 @@ public class OperatorDrive extends OpMode {
             else {
                 intakeHinge.setTargetPosition(-12600);
             }
-            intakeHinge.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            intakeHinge.setPower(-0.1);
+
+            while(intakeHinge.isBusy()) {
+                intakeHinge.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                intakeHinge.setPower(0.1);
+            }
         }
-        */
+
         left.setPower(speed + turn);
         right.setPower(speed - turn);
 

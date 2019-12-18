@@ -11,14 +11,15 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @TeleOp(name="Autonomous")
 public class Auto extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
+
     private DcMotor left;
     private DcMotor right;
     private DcMotor elevator;
-    private final double COUNTS_PER_INCH = (1440/(3.1415*4));
-    private final double SPEED = 0.5;
-    private final double RADIUS = 6;
-    private int error = 0;
-    private final double ELEVATOR_COUNTS = ((1440*1)/(1.25*Math.PI))/2;
+
+    private final double COUNTS_PER_INCH = (1120/(Math.PI*4));
+    private final double RADIUS = 6.25;
+
+    private final double ELEVATOR_COUNTS = ((1440)/(1.25*Math.PI))/2;
 
     private final int ELEVATOR_POSITION_0 = (int)Math.round(ELEVATOR_COUNTS*0);
     private final int ELEVATOR_POSITION_1 = (int)Math.round(ELEVATOR_COUNTS*2.5);
@@ -26,7 +27,10 @@ public class Auto extends LinearOpMode {
     private final int ELEVATOR_POSITION_3 = (int)Math.round(ELEVATOR_COUNTS*10.25);
     private final int ELEVATOR_POSITION_4 = (int)Math.round(ELEVATOR_COUNTS*14.25);
 
-    private Servo latch;
+    private double speed;
+    private int error;
+
+    //private Servo latch;
     private double elevatorSpeed;
 
     private double latchZero;
@@ -49,11 +53,14 @@ public class Auto extends LinearOpMode {
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         elevator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        right.setDirection(DcMotorSimple.Direction.REVERSE);
+        left.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        speed = 0.5;
+        error = 0;
 
         elevatorSpeed = 0.5;
 
-        latchZero = latch.getPosition();
+        //latchZero = latch.getPosition();
         latchPos = false;
         drop = false;
 
@@ -62,31 +69,50 @@ public class Auto extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+        telemetry.addData("Error", Integer.toString(error));
+        telemetry.update();
+
+        drive(6, error, left, right);
+        turn(-38.3, error, left, right);
+        // Move up to get above platform
+        drive(48.4, error, left, right);
+        turn(38.3, error, left, right);
+        drive(12, error, left, right);
+        // Move down to grab
+        drive(-18, error, left, right);
+        // Lift up to drop
+        drive(-6, error, left, right);
+        turn(57.7, error, left, right);
+        drive(44.9, error, left, right);
     }
 
 
-    private int drive(double setpoint, int error, DcMotor left, DcMotor right) {
+    private void drive(double setpoint, int error, DcMotor left, DcMotor right) {
+        telemetry.addData("State", Integer.toString(error));
+        telemetry.update();
         int target = (int)(setpoint * COUNTS_PER_INCH) + error;
 
         left.setTargetPosition(target);
         right.setTargetPosition(target);
+
+        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        left.setPower(speed);
+        right.setPower(speed);
+
         while(left.isBusy() && right.isBusy()) {
-            left.setTargetPosition(target);
-            right.setTargetPosition(target);
-
-            left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            left.setPower(SPEED);
-            right.setPower(SPEED);
+            telemetry.addData("Error", Integer.toString(error));
+            telemetry.update();
         }
-        return target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
+
+        error =  target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
+        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    private int turn(double rotation, int error, DcMotor left, DcMotor right) {
-        double amount_to_move = (rotation / 180)*3.1416*RADIUS;
-
-        int target = (int) (amount_to_move * COUNTS_PER_INCH);
+    private void turn(double rotation, int error, DcMotor left, DcMotor right) {
+        int target = (int) ((rotation / 180)*Math.PI*RADIUS*COUNTS_PER_INCH);
 
         left.setTargetPosition(target);
         right.setTargetPosition(-target);
@@ -94,30 +120,32 @@ public class Auto extends LinearOpMode {
         left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        left.setPower(SPEED);
-        right.setPower(-SPEED);
+        left.setPower(speed);
+        right.setPower(-speed);
 
         while(left.isBusy() && right.isBusy()) {
-            left.setTargetPosition(target);
-            right.setTargetPosition(-target);
-
-            left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            left.setPower(SPEED);
-            right.setPower(-SPEED);
-
+            telemetry.addData("Error", target-((left.getCurrentPosition()+right.getCurrentPosition())/2));
+            telemetry.update();
         }
-        return target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
-    }
-    private void moveElevator(int pos, DcMotor elevator) {
-        if(pos == 0) target = ELEVATOR_POSITION_0;
-        else if(pos == 1) target = ELEVATOR_POSITION_1;
-        else if(pos == 2) target = ELEVATOR_POSITION_2;
-        else if(pos == 3) target = ELEVATOR_POSITION_3;
-        else if(pos == 4) target = ELEVATOR_POSITION_4;
 
-
+        error = target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
+        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    private void moveElevator(double pos, DcMotor elevator) {
+        int target = (int)(pos*326);
+
+        elevator.setTargetPosition(target);
+
+        elevator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        elevator.setPower(elevatorSpeed);
+
+        while(elevator.isBusy()) {
+            telemetry.addData("Elevator", "True");
+            telemetry.update();
+        }
+
+    }
 }

@@ -84,8 +84,8 @@ public class Elevator extends OpMode {
             }
             latchPos = !latchPos;
         }
-        
-        if(elevator.isBusy()) {
+
+        if(!elevator.isBusy()) {
             elevator.setTargetPosition(target);
             elevator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elevator.setPower(elevatorSpeed);

@@ -12,10 +12,14 @@ public class TestOperatorDrive extends OpMode {
     private DcMotor left;
     private DcMotor right;
     private DcMotor elevator;
-    private Servo intake0;
-    private Servo intake1;
+    private DcMotor hinge;
     private Servo latch;
-
+//1440*n*2.5=942
+//    0.262
+//    0.227
+//    0.212
+//    0.204
+//    0.226
     private final double ELEVATOR_COUNTS = ((1440*1)/(1.25*Math.PI))/2;//377
     private final int ELEVATOR_POSITION_0 = 0;//(int)Math.round(ELEVATOR_COUNTS*0);
     private final int ELEVATOR_POSITION_1 = 942;//(int)Math.round(ELEVATOR_COUNTS*2.5);
@@ -37,11 +41,8 @@ public class TestOperatorDrive extends OpMode {
 
     private int target;
 
-    private boolean savedPosIntake0;
-    private boolean oldButtonIntake0;
-    private boolean savedPosIntake1;
-    private boolean oldButtonIntake1;
-    private boolean savedPosLatch;
+    private boolean savedPosHinge;
+    private boolean oldButtonHinge;
     private boolean oldButtonLatch;
 
     @Override
@@ -49,10 +50,13 @@ public class TestOperatorDrive extends OpMode {
         left = hardwareMap.get(DcMotor.class, "left_drive");
         right = hardwareMap.get(DcMotor.class, "right_drive");
         elevator = hardwareMap.get(DcMotor.class, "elevator");
-        //intake0 = hardwareMap.get(Servo.class, "intake0");
+        hinge = hardwareMap.get(DcMotor.class, "hinge");
         //intake1 = hardwareMap.get(Servo.class, "intake1");
         latch = hardwareMap.get(Servo.class, "latch");
         right.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        hinge.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hinge.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         elevator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -73,11 +77,8 @@ public class TestOperatorDrive extends OpMode {
         oldElevatorStage4 = false;
         target = 0;
 
-        savedPosIntake0 = false;
-        oldButtonIntake0 = false;
-        savedPosIntake1 = false;
-        oldButtonIntake1 = false;
-        savedPosLatch = false;
+        savedPosHinge = false;
+        oldButtonHinge = false;
         oldButtonLatch = false;
     }
 
@@ -85,8 +86,7 @@ public class TestOperatorDrive extends OpMode {
     public void loop() {
         double speed = gamepad1.right_trigger - gamepad1.left_trigger;
         double turn = gamepad1.left_stick_x;
-        boolean buttonIntake0 = gamepad1.a;
-        boolean buttonIntake1 = gamepad1.b;
+        boolean buttonHinge = gamepad1.a;
         boolean buttonLatch = gamepad1.x;
         boolean elevatorStage0 = gamepad1.dpad_down;
         boolean elevatorStage1 = gamepad1.dpad_left;
@@ -112,14 +112,20 @@ public class TestOperatorDrive extends OpMode {
 //        //elevator.setMode(DcMotor.RunMode.);
 //        elevator.setPower(elevatorManual);
 
-        if(buttonIntake0 && !oldButtonIntake0) {
-            intake0.setPosition((savedPosIntake0) ? 0 : 0.25);
-            savedPosIntake0 = !savedPosIntake0;
-        }
+        if(buttonHinge && !oldButtonHinge) {
+            savedPosHinge = !savedPosHinge;
 
-        if(buttonIntake1 && !oldButtonIntake1) {
-            intake1.setPosition((savedPosIntake1) ? 0 : -0.25);
-            savedPosIntake1 = !savedPosIntake1;
+            if(savedPosHinge) {
+                hinge.setTargetPosition(0);
+            }
+            else {
+                hinge.setTargetPosition(-12600);
+            }
+
+            while(hinge.isBusy()) {
+                hinge.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                hinge.setPower(0.1);
+            }
         }
 
         if(buttonLatch && !oldButtonLatch) {
@@ -169,7 +175,6 @@ public class TestOperatorDrive extends OpMode {
         oldElevatorStage3 = elevatorStage3;
         oldElevatorStage4 = elevatorStage4;
         oldButtonLatch = buttonLatch;
-        oldButtonIntake0 = buttonIntake0;
-        oldButtonIntake1 = buttonIntake1;
+        oldButtonHinge = buttonHinge;
     }
 }
