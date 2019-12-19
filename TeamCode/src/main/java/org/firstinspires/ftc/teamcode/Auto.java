@@ -72,25 +72,31 @@ public class Auto extends LinearOpMode {
         telemetry.addData("Error", Integer.toString(error));
         telemetry.update();
 
-        drive(6, error, left, right);
-        turn(-38.3, error, left, right);
+        drive(3, error, left, right);
+        turn(-72.47, error, left, right);
         // Move up to get above platform
-        drive(48.4, error, left, right);
-        turn(38.3, error, left, right);
-        drive(12, error, left, right);
+        drive(39.85, error, left, right);
+        //turn(72.47, error, left, right);
+        //drive(12, error, left, right);
         // Move down to grab
-        drive(-18, error, left, right);
+        //drive(-16, error, left, right);
         // Lift up to drop
-        drive(-6, error, left, right);
-        turn(57.7, error, left, right);
-        drive(44.9, error, left, right);
+        //drive(-6, error, left, right);
+        //turn(59.93, error, left, right);
+//        drive(43.91, error, left, right);
+//        turn(-30.07, error, left, right);
+//        drive(3, error, left, right);
+//        turn(-90, error, left, right);
+//        drive(38, error, left, right);
+//        turn(-90, error, left, right);
+//        drive(24, error, left, right);
     }
 
 
     private void drive(double setpoint, int error, DcMotor left, DcMotor right) {
         telemetry.addData("State", Integer.toString(error));
         telemetry.update();
-        int target = (int)(setpoint * COUNTS_PER_INCH) + error;
+        int target = (int)(setpoint * COUNTS_PER_INCH);
 
         left.setTargetPosition(target);
         right.setTargetPosition(target);
