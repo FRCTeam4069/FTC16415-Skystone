@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode;
+import java.util.concurrent.TimeUnit;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -8,30 +9,33 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@TeleOp(name="Autonomous")
-public class Auto extends LinearOpMode {
+@TeleOp(name="AutoUnderBridge")
+public class AutoUnderBridge extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     private DcMotor left;
     private DcMotor right;
     private DcMotor elevator;
+    private DcMotor hinge;
+    private Servo leftHinge;
+    private Servo rightHinge;
 
     private final double COUNTS_PER_INCH = (1120/(Math.PI*4));
     private final double RADIUS = 6.25;
 
     private final double ELEVATOR_COUNTS = ((1440)/(1.25*Math.PI))/2;
 
-    private final int ELEVATOR_POSITION_0 = (int)Math.round(ELEVATOR_COUNTS*0);
-    private final int ELEVATOR_POSITION_1 = (int)Math.round(ELEVATOR_COUNTS*2.5);
-    private final int ELEVATOR_POSITION_2 = (int)Math.round(ELEVATOR_COUNTS*6.25);
-    private final int ELEVATOR_POSITION_3 = (int)Math.round(ELEVATOR_COUNTS*10.25);
-    private final int ELEVATOR_POSITION_4 = (int)Math.round(ELEVATOR_COUNTS*14.25);
+    private int leftTarget;
+    private int rightTarget;
 
     private double speed;
     private int error;
 
     //private Servo latch;
     private double elevatorSpeed;
+
+    private double leftHingeZero;
+    private double rightHingeZero;
 
     private double latchZero;
     private boolean latchPos;
@@ -44,25 +48,36 @@ public class Auto extends LinearOpMode {
         left = hardwareMap.get(DcMotor.class, "right_drive");
         right = hardwareMap.get(DcMotor.class, "left_drive");
         elevator = hardwareMap.get(DcMotor.class, "elevator");
+        hinge = hardwareMap.get(DcMotor.class, "hinge");
+        leftHinge = hardwareMap.get(Servo.class, "leftHinge");
+        rightHinge = hardwareMap.get(Servo.class, "rightHinge");
 
         left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hinge.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         elevator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        hinge.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         left.setDirection(DcMotorSimple.Direction.REVERSE);
 
         speed = 0.5;
         error = 0;
 
+        leftTarget = 0;
+        rightTarget = 0;
+
         elevatorSpeed = 0.5;
 
         //latchZero = latch.getPosition();
         latchPos = false;
         drop = false;
+
+        leftHingeZero = leftHinge.getPosition();
+        rightHingeZero = rightHinge.getPosition();
 
         target = 0;
 
@@ -71,35 +86,21 @@ public class Auto extends LinearOpMode {
 
         telemetry.addData("Error", Integer.toString(error));
         telemetry.update();
-
-        drive(3, error, left, right);
-        turn(-72.47, error, left, right);
-        // Move up to get above platform
-        drive(39.85, error, left, right);
-        //turn(72.47, error, left, right);
-        //drive(12, error, left, right);
-        // Move down to grab
-        //drive(-16, error, left, right);
-        // Lift up to drop
-        //drive(-6, error, left, right);
-        //turn(59.93, error, left, right);
-//        drive(43.91, error, left, right);
-//        turn(-30.07, error, left, right);
-//        drive(3, error, left, right);
-//        turn(-90, error, left, right);
-//        drive(38, error, left, right);
-//        turn(-90, error, left, right);
-//        drive(24, error, left, right);
+        moveHinge(400, hinge);
+        drive(20, left, right);
     }
 
 
-    private void drive(double setpoint, int error, DcMotor left, DcMotor right) {
+    private void drive(double setpoint, DcMotor left, DcMotor right) {
         telemetry.addData("State", Integer.toString(error));
         telemetry.update();
         int target = (int)(setpoint * COUNTS_PER_INCH);
 
-        left.setTargetPosition(target);
-        right.setTargetPosition(target);
+        leftTarget = leftTarget + target;
+        rightTarget = rightTarget + target;
+
+        left.setTargetPosition(leftTarget);
+        right.setTargetPosition(rightTarget);
 
         left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -111,17 +112,16 @@ public class Auto extends LinearOpMode {
             telemetry.addData("Error", Integer.toString(error));
             telemetry.update();
         }
-
-        error =  target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
-        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    private void turn(double rotation, int error, DcMotor left, DcMotor right) {
+    private void turn(double rotation, DcMotor left, DcMotor right) {
         int target = (int) ((rotation / 180)*Math.PI*RADIUS*COUNTS_PER_INCH);
 
-        left.setTargetPosition(target);
-        right.setTargetPosition(-target);
+        leftTarget = leftTarget + target;
+        rightTarget = rightTarget - target;
+
+        left.setTargetPosition(leftTarget);
+        right.setTargetPosition(rightTarget);
 
         left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -133,10 +133,6 @@ public class Auto extends LinearOpMode {
             telemetry.addData("Error", target-((left.getCurrentPosition()+right.getCurrentPosition())/2));
             telemetry.update();
         }
-
-        error = target-((left.getCurrentPosition()+right.getCurrentPosition())/2);
-        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     private void moveElevator(double pos, DcMotor elevator) {
@@ -153,5 +149,16 @@ public class Auto extends LinearOpMode {
             telemetry.update();
         }
 
+    }
+
+    private void moveHinge(int pos, DcMotor hinge) {
+        hinge.setTargetPosition(pos);
+        hinge.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hinge.setPower(0.1);
+        while(elevator.isBusy()){
+            telemetry.addData("Hinge", "True");
+            telemetry.update();
+        }
+        //hinge.setPower(0);
     }
 }
